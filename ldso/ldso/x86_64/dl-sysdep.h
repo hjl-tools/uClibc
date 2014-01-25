@@ -56,24 +56,24 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
    first element of the GOT.  This must be inlined in a function which
    uses global data.  */
-static __always_inline Elf64_Addr __attribute__ ((unused))
+static __always_inline ElfW(Addr) __attribute__ ((unused))
 elf_machine_dynamic (void)
 {
-  Elf64_Addr addr;
+  ElfW(Addr) addr;
 
   /* This works because we have our GOT address available in the small PIC
      model.  */
-  addr = (Elf64_Addr) &_DYNAMIC;
+  addr = (ElfW(Addr)) &_DYNAMIC;
 
   return addr;
 }
 
 
 /* Return the run-time load address of the shared object.  */
-static __always_inline Elf64_Addr __attribute__ ((unused))
+static __always_inline ElfW(Addr) __attribute__ ((unused))
 elf_machine_load_address (void)
 {
-  register Elf64_Addr addr, tmp;
+  register ElfW(Addr) addr, tmp;
 
   /* The easy way is just the same as on x86:
        leaq _dl_start, %0
@@ -98,13 +98,13 @@ elf_machine_load_address (void)
 }
 
 static __always_inline void
-elf_machine_relative(Elf64_Addr load_off, const Elf64_Addr rel_addr,
-                     Elf64_Word relative_count)
+elf_machine_relative(ElfW(Addr) load_off, const ElfW(Addr) rel_addr,
+                     ElfW(Word) relative_count)
 {
-	Elf64_Rela *rpnt = (Elf64_Rela*)rel_addr;
+	ElfW(Rela) *rpnt = (ElfW(Rela)*)rel_addr;
 	--rpnt;
 	do {
-		Elf64_Addr *const reloc_addr = (Elf64_Addr*)(load_off + (++rpnt)->r_offset);
+		ElfW(Addr) *const reloc_addr = (ElfW(Addr)*)(load_off + (++rpnt)->r_offset);
 
 		*reloc_addr = load_off + rpnt->r_addend;
 	} while (--relative_count);
