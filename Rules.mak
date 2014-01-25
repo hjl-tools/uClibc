@@ -74,6 +74,10 @@ STRIP_FLAGS ?= -x -R .note -R .comment
 HOSTCC     = gcc
 BUILD_CFLAGS = -Os
 
+ifeq ($(CONFIG_X86_X32),y)
+CC        += -mx32
+endif
+
 #---------------------------------------------------------
 # Nothing beyond this point should ever be touched by mere
 # mortals.  Unless you hang out with the gods, you should
