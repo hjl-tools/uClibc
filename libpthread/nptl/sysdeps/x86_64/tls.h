@@ -344,9 +344,27 @@ typedef struct
 	      abort (); })
 
 
-# define CALL_THREAD_FCT(descr) \
+# if __WORDSIZE == 32
+/* X32 doesn't support 32-bit indirect calls via memory.  Instead, we
+   load the 32-bit address from memory into the lower 32 bits of the
+   return-value register, which will automatically zero-extend the upper
+   32 bits of the return-value register.  We then do the indirect call
+   via the 64-bit return-value register.  */
+#  define CALL_THREAD_FCT(descr) \
   ({ void *__res;							      \
-     __asm__ __volatile__ ("movq %%fs:%P2, %%rdi\n\t"				      \
+     asm volatile ("movl %%fs:%P2, %%edi\n\t"				      \
+		   "movl %%fs:%P1, %k0\n\t"				      \
+		   "callq *%q0"						      \
+		   : "=a" (__res)					      \
+		   : "i" (offsetof (struct pthread, start_routine)),	      \
+		     "i" (offsetof (struct pthread, arg))		      \
+		   : "di", "si", "cx", "dx", "r8", "r9", "r10", "r11",	      \
+		     "memory", "cc");					      \
+     __res; })
+# else
+#  define CALL_THREAD_FCT(descr) \
+  ({ void *__res;							      \
+     __asm__ __volatile__ ("movq %%fs:%P2, %%rdi\n\t"			      \
 		   "callq *%%fs:%P1"					      \
 		   : "=a" (__res)					      \
 		   : "i" (offsetof (struct pthread, start_routine)),	      \
@@ -354,6 +372,7 @@ typedef struct
 		   : "di", "si", "cx", "dx", "r8", "r9", "r10", "r11",	      \
 		     "memory", "cc");					      \
      __res; })
+#endif
 
 
 /* Set the stack guard field in TCB head.  */
