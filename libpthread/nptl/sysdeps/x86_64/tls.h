@@ -189,7 +189,7 @@ typedef struct
    do not get optimized away.  */
 # define THREAD_SELF \
   ({ struct pthread *__self;						      \
-     __asm__ ("movq %%fs:%c1,%q0" : "=r" (__self)				      \
+     __asm__ ("mov %%fs:%c1,%0" : "=r" (__self)				      \
 	  : "i" (offsetof (struct pthread, header.self)));	 	      \
      __self;})
 
