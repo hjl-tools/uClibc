@@ -7,6 +7,9 @@ config TARGET_ARCH
 	string
 	default "x86_64"
 
+config CONFIG_X86_X32
+	bool "x32 ABI for 64-bit mode"
+
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
